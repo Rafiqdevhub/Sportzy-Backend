@@ -1,16 +1,20 @@
 import express from "express";
 import http from "http";
-import "dotenv/config";
+import cors from "cors";
 import { commentaryRouter } from "./routes/commentaryRoute.js";
 import { matchRouter } from "./routes/matchRoute.js";
 import { attachWebSocketServer } from "./ws/server.js";
 import { securityMiddleware } from "./arcjet.js";
+import { CORS_ORIGIN, HOST, PORT } from "./config/index.js";
 
 const app = express();
-const PORT = process.env.PORT || 8000;
-const HOST = process.env.HOST || "0.0.0.0";
 
 app.use(express.json());
+app.use(
+  cors({
+    origin: CORS_ORIGIN,
+  }),
+);
 const server = http.createServer(app);
 
 app.get("/", (req, res) => {

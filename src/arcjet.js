@@ -1,34 +1,32 @@
 import arcjet, { detectBot, shield, slidingWindow } from "@arcjet/node";
+import { ARCJET_KEY, ARCJET_MODE } from "./config/index.js";
 
-const arcjetKey = process.env.ARCJET_KEY;
-const arcjetMode = process.env.ARCJECT_MODE === "DRY_RUN" ? "DRY_RUN" : "LIVE";
+if (!ARCJET_KEY) throw new Error("ARCJET_KEY environment variable is missing.");
 
-if (!arcjetKey) throw new Error("ARCJET_KEY environment variable is missing.");
-
-export const httpArcjet = arcjetKey
+export const httpArcjet = ARCJET_KEY
   ? arcjet({
-      key: arcjetKey,
+      key: ARCJET_KEY,
       rules: [
-        shield({ mode: arcjetMode }),
+        shield({ mode: ARCJET_MODE }),
         detectBot({
-          mode: arcjetMode,
+          mode: ARCJET_MODE,
           allow: ["CATEGORY:SEARCH_ENGINE", "CATEGORY:PREVIEW"],
         }),
-        slidingWindow({ mode: arcjetMode, interval: "10s", max: 50 }), // 50 requests per 10 seconds per IP
+        slidingWindow({ mode: ARCJET_MODE, interval: "10s", max: 50 }), // 50 requests per 10 seconds per IP
       ],
     })
   : null;
 
-export const wsArcjet = arcjetKey
+export const wsArcjet = ARCJET_KEY
   ? arcjet({
-      key: arcjetKey,
+      key: ARCJET_KEY,
       rules: [
-        shield({ mode: arcjetMode }),
+        shield({ mode: ARCJET_MODE }),
         detectBot({
-          mode: arcjetMode,
+          mode: ARCJET_MODE,
           allow: ["CATEGORY:SEARCH_ENGINE", "CATEGORY:PREVIEW"],
         }),
-        slidingWindow({ mode: arcjetMode, interval: "2s", max: 5 }),
+        slidingWindow({ mode: ARCJET_MODE, interval: "2s", max: 5 }),
       ],
     })
   : null;
