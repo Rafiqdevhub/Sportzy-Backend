@@ -4,6 +4,7 @@ import "dotenv/config";
 import { commentaryRouter } from "./routes/commentaryRoute.js";
 import { matchRouter } from "./routes/matchRoute.js";
 import { attachWebSocketServer } from "./ws/server.js";
+import { securityMiddleware } from "./arcjet.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -15,6 +16,8 @@ const server = http.createServer(app);
 app.get("/", (req, res) => {
   res.json({ message: "Sportzy API is running." });
 });
+
+app.use(securityMiddleware());
 
 app.use("/matches", matchRouter);
 app.use("/matches/:id/commentary", commentaryRouter);

@@ -1,16 +1,17 @@
 import { WebSocket, WebSocketServer } from "ws";
+import { wsArcjet } from "../arcjet.js";
 
 const matchSubscribers = new Map();
 
-function subscribe(matchId, socket) {
+const subscribe = (matchId, socket) => {
   if (!matchSubscribers.has(matchId)) {
     matchSubscribers.set(matchId, new Set());
   }
 
   matchSubscribers.get(matchId).add(socket);
-}
+};
 
-function unsubscribe(matchId, socket) {
+const unsubscribe = (matchId, socket) => {
   const subscribers = matchSubscribers.get(matchId);
 
   if (!subscribers) return;
@@ -20,29 +21,29 @@ function unsubscribe(matchId, socket) {
   if (subscribers.size === 0) {
     matchSubscribers.delete(matchId);
   }
-}
+};
 
-function cleanupSubscriptions(socket) {
+const cleanupSubscriptions = (socket) => {
   for (const matchId of socket.subscriptions) {
     unsubscribe(matchId, socket);
   }
-}
+};
 
-function sendJson(socket, payload) {
+const sendJson = (socket, payload) => {
   if (socket.readyState !== WebSocket.OPEN) return;
 
   socket.send(JSON.stringify(payload));
-}
+};
 
-function broadcastToAll(wss, payload) {
+const broadcastToAll = (wss, payload) => {
   for (const client of wss.clients) {
     if (client.readyState !== WebSocket.OPEN) continue;
 
     client.send(JSON.stringify(payload));
   }
-}
+};
 
-function broadcastToMatch(matchId, payload) {
+const broadcastToMatch = (matchId, payload) => {
   const subscribers = matchSubscribers.get(matchId);
   if (!subscribers || subscribers.size === 0) return;
 
@@ -53,9 +54,9 @@ function broadcastToMatch(matchId, payload) {
       client.send(message);
     }
   }
-}
+};
 
-function handleMessage(socket, data) {
+const handleMessage = (socket, data) => {
   let message;
 
   try {
@@ -76,9 +77,9 @@ function handleMessage(socket, data) {
     socket.subscriptions.delete(message.matchId);
     sendJson(socket, { type: "unsubscribed", matchId: message.matchId });
   }
-}
+};
 
-export function attachWebSocketServer(server) {
+export const attachWebSocketServer = (server) => {
   const wss = new WebSocketServer({
     noServer: true,
     path: "/ws",
@@ -90,6 +91,27 @@ export function attachWebSocketServer(server) {
 
     if (pathname !== "/ws") {
       return;
+    }
+
+    if (wsArcjet) {
+      try {
+        const decision = await wsArcjet.protect(req);
+
+        if (decision.isDenied()) {
+          if (decision.reason.isRateLimit()) {
+            socket.write("HTTP/1.1 429 Too Many Requests\r\n\r\n");
+          } else {
+            socket.write("HTTP/1.1 403 Forbidden\r\n\r\n");
+          }
+          socket.destroy();
+          return;
+        }
+      } catch (e) {
+        console.error("WS upgrade protection error", e);
+        socket.write("HTTP/1.1 500 Internal Server Error\r\n\r\n");
+        socket.destroy();
+        return;
+      }
     }
 
     wss.handleUpgrade(req, socket, head, (ws) => {
@@ -133,13 +155,13 @@ export function attachWebSocketServer(server) {
 
   wss.on("close", () => clearInterval(interval));
 
-  function broadcastMatchCreated(match) {
+  const broadcastMatchCreated = (match) => {
     broadcastToAll(wss, { type: "match_created", data: match });
-  }
+  };
 
-  function broadcastCommentary(matchId, comment) {
+  const broadcastCommentary = (matchId, comment) => {
     broadcastToMatch(matchId, { type: "commentary", data: comment });
-  }
+  };
 
   return { broadcastMatchCreated, broadcastCommentary };
-}
+};
