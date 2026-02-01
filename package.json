@@ -7,7 +7,8 @@
     "dev": "nodemon src/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:test": "node src/db-test.js"
+    "db:test": "node src/db-test.js",
+    "seed": "node src/seed/seed.js"
   },
   "keywords": [],
   "author": "",
