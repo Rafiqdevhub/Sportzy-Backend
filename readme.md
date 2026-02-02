@@ -5,7 +5,7 @@ A real-time sports match management API with live commentary feed and WebSocket 
 ## Tech Stack
 
 - **Runtime**: Node.js (ES Modules)
-- **Framework**: Express 5.2.1
+- **Framework**: Express
 - **Database**: PostgreSQL with Drizzle ORM
 - **Validation**: Zod for schema validation
 - **Real-time**: WebSocket (ws) for live updates
