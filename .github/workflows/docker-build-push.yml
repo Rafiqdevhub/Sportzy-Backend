@@ -6,6 +6,14 @@ on:
       - main
       - master
       - develop
+      - feat/arcjet
+      - feat/cofig-file
+      - feat/database-schema
+      - feat/dockerize-app
+      - feat/matches-endpoints
+      - feat/publishSubscribe
+      - feat/seed-data
+      - feat/websocket-server
     tags:
       - "v*.*.*"
   pull_request:
