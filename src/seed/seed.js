@@ -526,7 +526,7 @@ async function seed() {
   console.log(`📡 Seeding via API: ${API_URL}`);
 
   const { feed, matches: seedMatches } = await loadSeedData();
-  const matchesList = await fetchMatches();
+  const matchesList = await fetchMatches(20);
 
   const matchMap = new Map();
   const matchKeyMap = new Map();
