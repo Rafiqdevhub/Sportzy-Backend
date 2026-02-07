@@ -25,7 +25,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Sportzy Backend is running!" });
 });
 
-// app.use(securityMiddleware());
+app.use(securityMiddleware());
 
 app.use("/matches", matchRouter);
 app.use("/matches/:id/commentary", commentaryRouter);
